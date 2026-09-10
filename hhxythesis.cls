@@ -334,7 +334,7 @@
 \newcommand*{\Major}[1]{\gdef\hhxy@major{#1}}
 \newcommand*{\Advisor}[2]{\gdef\hhxy@advisorname{#1}\gdef\hhxy@advisortitle{#2}}
 \newcommand*{\SecondAdvisor}[2]{%
-  \gdef\hhxy@advisorb{\\ & #1\quad #2}}
+  \gdef\hhxy@advisornameb{#1}\gdef\hhxy@advisortitleb{#2}}
 \newcommand*{\Duration}[1]{\gdef\hhxy@duration{#1}}
 \newcommand*{\SubmitDate}[1]{\gdef\hhxy@submitdate{#1}}
 
@@ -345,7 +345,7 @@
 \Author{}\StudentID{}
 \College{}\Major{}
 \Advisor{}{}
-\gdef\hhxy@advisorb{}          % 第二指导教师（默认无）
+\gdef\hhxy@advisornameb{}\gdef\hhxy@advisortitleb{}   % 第二指导教师（默认无）
 \Duration{}
 \SubmitDate{}
 
@@ -428,7 +428,17 @@
     \makebox[5em][l]{\songtibold\bfseries 学\qquad 号：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@studentid}}\par
     \makebox[5em][l]{\songtibold\bfseries 院\qquad 别：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@college}}\par
     \makebox[5em][l]{\songtibold\bfseries 专\qquad 业：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@major}}\par
-    \makebox[5em][l]{\songtibold\bfseries 指导教师：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle\hhxy@advisorb}}\par
+    \makebox[5em][l]{\songtibold\bfseries 指导教师：}%
+    \ifx\hhxy@advisornameb\@empty
+      \underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle}}%
+    \else
+      \parbox[t]{\hhxy@fieldw}{%
+        \underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle}}%
+        \\[2pt]%
+        \underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisornameb\quad\hhxy@advisortitleb}}%
+      }%
+    \fi
+    \par
     \makebox[5em][l]{\songtibold\bfseries 起止日期：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@duration}}\par
   \endgroup
   \par\vfill
