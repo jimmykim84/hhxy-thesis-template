@@ -2,7 +2,7 @@
 %%  hhxythesis.cls —— 怀化学院本科生毕业论文（设计、创作）LaTeX 模板
 %%
 %%  作者：张乐冰 怀化学院 计算机与人工智能学院
-%%  版本：V1.1.4  2026.9.10
+%%  版本：V1.1.5  2026.9.10
 %%  项目主页： https://github.com/jimmykim84/hhxy-thesis-template
 %%
 %%  特别说明：本模板为非官方模板，仅参照本校学位论文格式制作，仅供排版参考；不代表学校官方要求，也不代表示例论文内容正确。如与学校最新官方文件冲突，以学校官方文件为准。
@@ -357,7 +357,7 @@
 %%    校徽 wordmark     x[154-421]pt  居中，墨迹宽≈267pt/高≈46pt（图宽≈12cm）
 %%    论文类型          x[168-416]pt  小初(36pt)宋体，居中
 %%    题目 中文/英文    标签 x=114pt 起，值列 x=204pt 起、下划线满宽至≈498pt；
-%%                      首行缩进 2 字符；28pt 行距；可随题目长度换行
+%%                      首行缩进 2 字符；22pt 行距；可随题目长度换行
 %%    学生信息 6 行     标签 x=149pt(缩进4.5字符)，值列下划线 x[218-454]pt、
 %%                      值居中；行距≈31pt
 %%    提交日期          居中，四号宋体，页底偏上
@@ -366,8 +366,13 @@
 %%    * 标题换行且每行下划线满宽：\parbox[t]{宽}{\uline{...\hfill}}
 %%      （ulem 的 \uline 逐行加下划线，结尾 \hfill 使最后一行也划满；
 %%        切记 \uline 要放在 \parbox 内部，否则只划盒底一条）。
-%%    * 字段值居中 + 满宽下划线：\underline{\makebox[宽][c]{值}}。
+%%    * 字段值居中 + 满宽下划线：\uline{\makebox[宽][c]{值}}。
 %%---------------------------------------------------------------
+%% —— 封面下划线统一 ——
+%% 封面所有下划线一律使用 ulem 的 \uline：原生 \underline 走数学字体，线厚随字号变化，
+%% 与 \uline 的 \ULthickness 并不一致；且 \underline 无法对多行内容逐行画线。
+%% 固定 \ULthickness 后，无论单行还是换行，下划线粗细完全一致（想调整粗细改此值即可）。
+\renewcommand\ULthickness{0.5pt}
 \newlength{\hhxy@titletw}   % 题目值列宽
 \newlength{\hhxy@fieldw}    % 字段值列宽
 \newlength{\hhxy@labw}      % 题目标签宽
@@ -384,7 +389,7 @@
   %%    下划线长度 = 值宽 + 2 字符）——
   \settowidth{\hhxy@clsw}{\bfseries\hhxy@classno}%
   \addtolength{\hhxy@clsw}{2em}%
-  \noindent\hfill{\songtibold\bfseries 学科分类号}\quad\underline{\makebox[\hhxy@clsw][c]{\bfseries\hhxy@classno}}\hspace*{48pt}\par
+  \noindent\hfill{\songtibold\bfseries 学科分类号}\quad\uline{\makebox[\hhxy@clsw][c]{\bfseries\hhxy@classno}}\hspace*{48pt}\par
   \vspace{36pt}
   %
   %% —— 校徽（居中，墨迹宽≈267pt，用裁剪去白边后的 logo）——
@@ -395,24 +400,56 @@
   \centerline{\zihao{-0}\songtibold\bfseries\hhxy@thesistype}%
   \vspace{50pt}
   %
-  %% —— 题目 中文/英文（四号宋体，左对齐，首行缩进 2 字符；
-  %%    值列左对齐、可换行、每行下划线满宽；行距 28pt）——
+  %% —— 题目 中文/英文（四号宋体，标签悬挂在题目列左侧；
+  %%    值列左对齐、可换行、每行下划线满宽；
+  %%    行距固定 28pt —— 中文标题折成多行时，行与行之间、
+  %%    以及中文标题末行到英文标题首行，基线间距统一为 28pt）——
   %%    注：封面布局不用 tabular（cls 有 \AtBeginEnvironment{tabular}{\wuhao}
   %%    表格钩子会把内容变五号），改用 \makebox+\par 保证四号。
   \begingroup
     \zihao{4}\songti
-    \setlength{\baselineskip}{28pt}%
+    \setlength{\baselineskip}{28pt}%                % 外层段落行距（真正作用于题目各行的是
+                                                    % parbox 内部的那处设置，见下）
+    \setlength{\parskip}{0pt}%                      % 中/英两块之间不加额外段距
+    \setlength{\lineskiplimit}{0\p@}%               % 与类文件一致：d<0 才退化为 \lineskip
+    \setlength{\lineskip}{2\p@}%
     \setlength{\parindent}{0pt}%                    % 关掉正文 2 字符首行缩进
     \settowidth{\hhxy@labw}{{\songtibold\bfseries 题目（中文）：}}%   % 题目标签实测宽（粗体）
     \setlength{\hhxy@titletw}{294pt}%                % 题目值列宽（参考图 x204→498）
-    \leftskip=2em\relax                              % 首行缩进 2 字符（作用于每一行）
+    %% 版式：题目值放在一个 294pt 的 \parbox 里（= 值列，x 204→498）；
+    %%   「题目（中文）：」「（英文）：」两个标签用零宽盒子悬挂在该列左侧
+    %%   （宽度 = \hhxy@labw），每个标签写在它所标注那一块的【首行行首】，
+    %%   因此「（英文）：」自动跟随英文标题首行 —— 中文标题无论折成几行都对得上。
+    %%   外层段落左缩进 = 2 字符 + 标签宽，正好把值列的左边缘推到参考图位置。
+    %% 中/英两块都在【同一个 \parbox 内】，只隔一个 \par：
+    %%   这样两块同属该 \parbox 的垂直列表，interline glue 正常取
+    %%   \baselineskip，行距恒为 28pt（含「中文末行 → 英文首行」）。
+    %%   反例（已实测）：若把中/英写成外层两个 \par 段落、每段末尾又是
+    %%   一个 \parbox[t]，则跨段处 interline glue 退化为 \lineskip＝2pt，
+    %%   「中文末行 → 英文首行」只剩 16.5pt（≠ 22pt）。故必须合并进同一个 \parbox。
     %% 中英文题目均可按长度自动换行，且每行下划线等长（都撑满 294pt）：
     %%   * \parbox[t]{294pt}{...} 提供固定列宽 → 按内容自动折行；
     %%   * \uline 逐行加下划线，行尾 \hfill 让末行也撑满，故各行等长；
     %%   * \expandafter 先展开宏再交给 \uline，否则整个标题无法断行；
     %%   * 必须加载 xeCJKfntef，否则长中文（无空格）会被当成一个词而溢出。
-    \makebox[\hhxy@labw][l]{\songtibold\bfseries 题目（中文）：}\parbox[t]{\hhxy@titletw}{\expandafter\uline\expandafter{\hhxy@titlecn\hfill}}\par
-    \makebox[\hhxy@labw][r]{\songtibold\bfseries （英文）：}\parbox[t]{\hhxy@titletw}{\expandafter\uline\expandafter{\hhxy@titleen\hfill}}\par
+    \leftskip=\dimexpr 2em+\hhxy@labw\relax
+    \noindent
+    \parbox[t]{\hhxy@titletw}{%                      % —— 值列（中/英两块同一 \parbox）——
+      %% 【必须写在 parbox 内部】\parbox 会执行 \@parboxrestore，其中
+      %%   \baselineskip\normalbaselineskip、\lineskip\normallineskip，
+      %%   而本类把 \normalbaselineskip 锁死为 22pt —— 所以行距若只写在
+      %%   parbox 外面会被立刻覆盖（实测「外面设 28pt、内里仍 22pt」）。
+      %%   下文这三行放在 parbox 内，才真正作用于题目各行的 interline glue。
+      \setlength{\baselineskip}{28pt}%               % 题目区行距固定 28pt（中/英、折行均一致）
+      \setlength{\lineskip}{2\p@}%
+      \setlength{\lineskiplimit}{0\p@}%
+      \leftskip\z@skip\rightskip\z@skip \parindent\z@
+      \noindent\makebox[0pt][r]{\makebox[\hhxy@labw][l]{\songtibold\bfseries 题目（中文）：}}%
+      \expandafter\uline\expandafter{\hhxy@titlecn\hfill}\par
+      \noindent\makebox[0pt][r]{\makebox[\hhxy@labw][r]{\songtibold\bfseries （英文）：}}%
+      \expandafter\uline\expandafter{\hhxy@titleen\hfill}%
+    }%
+    \par
   \endgroup
   \par\vspace{46pt}
   %
@@ -424,22 +461,22 @@
     \setlength{\baselineskip}{31pt}%                % 行距≈31pt
     \setlength{\parindent}{0pt}%                    % 关掉正文 2 字符首行缩进
     \leftskip=4.5em\relax                           % 缩进 4.5 字符（作用于每一行）
-    \makebox[5em][l]{\songtibold\bfseries 学生姓名：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@author}}\par
-    \makebox[5em][l]{\songtibold\bfseries 学\qquad 号：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@studentid}}\par
-    \makebox[5em][l]{\songtibold\bfseries 院\qquad 别：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@college}}\par
-    \makebox[5em][l]{\songtibold\bfseries 专\qquad 业：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@major}}\par
+    \makebox[5em][l]{\songtibold\bfseries 学生姓名：}\uline{\makebox[\hhxy@fieldw][c]{\hhxy@author}}\par
+    \makebox[5em][l]{\songtibold\bfseries 学\qquad 号：}\uline{\makebox[\hhxy@fieldw][c]{\hhxy@studentid}}\par
+    \makebox[5em][l]{\songtibold\bfseries 院\qquad 别：}\uline{\makebox[\hhxy@fieldw][c]{\hhxy@college}}\par
+    \makebox[5em][l]{\songtibold\bfseries 专\qquad 业：}\uline{\makebox[\hhxy@fieldw][c]{\hhxy@major}}\par
     \makebox[5em][l]{\songtibold\bfseries 指导教师：}%
     \ifx\hhxy@advisornameb\@empty
-      \underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle}}%
+      \uline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle}}%
     \else
       \parbox[t]{\hhxy@fieldw}{%
-        \underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle}}%
+        \uline{\makebox[\hhxy@fieldw][c]{\hhxy@advisorname\quad\hhxy@advisortitle}}%
         \\[2pt]%
-        \underline{\makebox[\hhxy@fieldw][c]{\hhxy@advisornameb\quad\hhxy@advisortitleb}}%
+        \uline{\makebox[\hhxy@fieldw][c]{\hhxy@advisornameb\quad\hhxy@advisortitleb}}%
       }%
     \fi
     \par
-    \makebox[5em][l]{\songtibold\bfseries 起止日期：}\underline{\makebox[\hhxy@fieldw][c]{\hhxy@duration}}\par
+    \makebox[5em][l]{\songtibold\bfseries 起止日期：}\uline{\makebox[\hhxy@fieldw][c]{\hhxy@duration}}\par
   \endgroup
   \par\vfill
   %
@@ -475,7 +512,7 @@
   \vspace{176pt}%
   \noindent\fangsong\zihao{4}\hspace*{11.5\ccwd}本科\hhxy@worktype 作者签名：\par
   \vspace{22pt}%
-  \noindent\fangsong\zihao{4}\hspace*{21\ccwd}年\hspace{0.75\ccwd}月\hspace{0.75\ccwd}日\par
+  \noindent\fangsong\zihao{4}\hspace*{21\ccwd}年\hspace{1.85\ccwd}月\hspace{1.85\ccwd}日\par
   \clearpage
 }
 
