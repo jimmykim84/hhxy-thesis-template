@@ -1,10 +1,10 @@
 # macOS
 .DS_Store
 
-# 本工具工作目录（本地数据，勿上传）
+# 本地工具工作目录（勿上传）
 .workbuddy/
 
-# LaTeX 编译中间产物与输出（仅根目录；figures/ 下的插图不受影响）
+# LaTeX 编译产物（仅根目录；figures/ 下的插图不受影响）
 /*.aux
 /*.log
 /*.toc
