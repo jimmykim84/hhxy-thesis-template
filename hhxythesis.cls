@@ -497,6 +497,10 @@
 \renewcommand*\l@section{\@dottedtocline{1}{0em}{0em}}
 \renewcommand*\l@subsection{\@dottedtocline{2}{2em}{0em}}
 \renewcommand*\l@subsubsection{\@dottedtocline{3}{4em}{0em}}
+%% 引导点密度：【范本】目录条目后的点应较密（LaTeX 默认 \@dotsep=4.5 偏稀）。
+%%   \@dotsep 单位为 mu（1mu=1/18em），点与点中心距 = 2\@dotsep mu + 点宽，
+%%   数值越小点越密。取 2.0，得到与范本截图接近的密度。
+\renewcommand\@dotsep{2.0}
 %% 本类文件已在开头 \makeatletter（@ 视为字母），此处不再开/闭 @ 状态，
 %% 直接重定义（避免中断后续 \hhxy@... 宏名的解析）。
 \def\@dottedtocline#1#2#3#4#5{%
@@ -520,6 +524,7 @@
   \begin{center}\xiaosan\heiti 目　录\end{center}
   \vspace{0.6cm}
   \xiaosi\songti
+  \setlength{\baselineskip}{22pt}%                 % 目录条目行距固定值 22 磅
   \@starttoc{toc}%
   \clearpage
   \pagestyle{hhxy}
